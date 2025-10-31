@@ -2,6 +2,7 @@ import 'package:ecommerce/cadastro_screen.dart';
 import 'package:ecommerce/models/todo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(MyApp());
@@ -76,6 +77,63 @@ class _HomeState extends State<Home> {
                             : null,
                         title: Text(produto.nome, style: TextStyle(fontSize: 18, color: Colors.white)),
                         subtitle: Text(produto.descricao, style: TextStyle(fontSize: 14, color: Color.fromARGB(255, 170, 170, 170), fontStyle: FontStyle.italic)),
+                        onLongPress: () async {
+                          showBottomSheet(context: context, builder: (context) {
+                            return Container(
+                              padding: EdgeInsets.all(10.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: Icon(Icons.email, color: Colors.black),
+                                    title: Text("Envir por E-mail", style: TextStyle(color: Colors.black)),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      
+                                      final uri = Uri(
+                                        scheme: 'mailto',
+                                        path: 'joselio.junior@estudante.ifgoiano.edu.br',
+                                        queryParameters: {
+                                          "subject": "Produto ${produto.nome}",
+                                          "body": "Olá, gostaria de comprar o produto ${produto.nome} anunciado no seu app."
+                                        },
+                                      );
+
+                                      final url = uri.toString();
+                                      if (await canLaunchUrl(url as Uri)) {
+                                        await launch(url);
+                                      } else {
+                                        print("Erro ao enviar o E-mail");
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: Icon(Icons.messenger, color: Colors.black),
+                                    title: Text("Envir por SMS", style: TextStyle(color: Colors.black)),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+
+                                      final uri = Uri(
+                                        scheme: 'sms',
+                                        path: '(64) 99999-9999',
+                                        queryParameters: {
+                                          "body": "Olá, gostaria de comprar o produto ${produto.nome} anunciado no seu app."
+                                        },
+                                      );
+
+                                      final url = uri.toString();
+                                      if (await canLaunchUrl(url as Uri)) {
+                                        await launch(url);
+                                      } else {
+                                        print("Erro ao enviar o SMS");
+                                      }
+                                    },
+                                  )
+                                ],
+                              ),
+                            );
+                          });
+                        },
                       ),
                     ),
                   );
@@ -105,6 +163,7 @@ class _HomeState extends State<Home> {
           backgroundColor: Color.fromARGB(255, 242, 79, 4),
           foregroundColor: Colors.white,
         ),
+        
     );
   }
 }
