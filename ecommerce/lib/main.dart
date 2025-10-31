@@ -1,6 +1,7 @@
 import 'package:ecommerce/cadastro_screen.dart';
 import 'package:ecommerce/models/todo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,6 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Home(),
+      theme: ThemeData(
+        scaffoldBackgroundColor: Color.fromARGB(255, 15, 15, 15),
+      ),
     );
   }
 }
@@ -38,9 +42,18 @@ class _HomeState extends State<Home> {
           children: [
             Padding(
               padding: EdgeInsets.all(16.0),
-              child: Text(
-                "Menu dos Produtos",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "Menu pricipal",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                  Text(
+                    "Meus produtos",
+                    style: TextStyle(fontSize: 14, color: Color.fromARGB(255, 170, 170, 170)),
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -48,8 +61,23 @@ class _HomeState extends State<Home> {
                 itemCount: _produtos.length,
                 itemBuilder: (context, index) {
                   final produto = _produtos[index];
-                  return ListTile(
-                    title: Text(produto.nome, style: TextStyle(fontSize: 18, color: Colors.black)),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 33, 33, 33),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: ListTile(
+                        leading: produto.image != null 
+                            ? (kIsWeb 
+                                ? Image.network(produto.image!.path, width: 150, height: 150, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported))
+                                : Image.file(produto.image!, width: 150, height: 150, fit: BoxFit.cover)) 
+                            : null,
+                        title: Text(produto.nome, style: TextStyle(fontSize: 18, color: Colors.white)),
+                        subtitle: Text(produto.descricao, style: TextStyle(fontSize: 14, color: Color.fromARGB(255, 170, 170, 170), fontStyle: FontStyle.italic)),
+                      ),
+                    ),
                   );
                 },
                 separatorBuilder: (context, index) => Divider(),
