@@ -39,6 +39,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
         title: Text(widget.produto == null ? "Cadastro de Produto" : "Editar Produto", style: TextStyle(color: Colors.black)),
         centerTitle: true,
         backgroundColor: Color.fromARGB(255, 236, 232, 229),
+        leading: Container(
+          margin: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
