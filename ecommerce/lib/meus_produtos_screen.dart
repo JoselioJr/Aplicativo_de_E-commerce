@@ -1,6 +1,7 @@
 import 'package:ecommerce/cadastro_screen.dart';
 import 'package:ecommerce/models/produto.dart';
 import 'package:ecommerce/produto_detalhes_screen.dart';
+import 'package:ecommerce/services/produto_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +14,19 @@ class MeusProdutosScreen extends StatefulWidget {
 }
 class _MeusProdutosScreenState extends State<MeusProdutosScreen> {
   List<Produto> _produtos = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarProdutos();
+  }
+
+  Future<void> _carregarProdutos() async {
+    final produtos = await ProdutoService.getProdutos();
+    setState(() {
+      _produtos = produtos;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +78,32 @@ class _MeusProdutosScreenState extends State<MeusProdutosScreen> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       child: ListTile(
-                        leading: produto.image != null 
-                            ? (kIsWeb 
-                                ? Image.network(produto.image!.path, width: 150, height: 150, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported))
-                                : Image.file(produto.image!, width: 150, height: 150, fit: BoxFit.cover)) 
-                            : null,
+                        leading: Container(
+                          width: 60,
+                          height: 60,
+                          child: produto.image != null 
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: kIsWeb 
+                                      ? Image.network(
+                                          produto.image!.path, 
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) => 
+                                              Icon(Icons.image_not_supported, size: 40)
+                                        )
+                                      : Image.file(
+                                          produto.image!, 
+                                          fit: BoxFit.cover
+                                        )
+                                )
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(Icons.image, color: Colors.grey[400], size: 30),
+                                ),
+                        ),
                         title: Text(produto.nome, style: TextStyle(fontSize: 18, color: Colors.black)),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,13 +119,11 @@ class _MeusProdutosScreenState extends State<MeusProdutosScreen> {
                             MaterialPageRoute(builder: (context) => ProdutoDetalhesScreen(produto: produto)),
                           );
                           if (resultado == 'delete') {
-                            setState(() {
-                              _produtos.removeAt(index);
-                            });
+                            await ProdutoService.deleteProduto(index);
+                            _carregarProdutos();
                           } else if (resultado is Produto) {
-                            setState(() {
-                              _produtos[index] = resultado;
-                            });
+                            await ProdutoService.updateProduto(index, resultado);
+                            _carregarProdutos();
                           }
                         },
                         onLongPress: () async {
@@ -167,9 +200,8 @@ class _MeusProdutosScreenState extends State<MeusProdutosScreen> {
                 MaterialPageRoute(builder: (context) => CadastroScreen()),
               );
               if (produto != null) {
-                setState(() {
-                  _produtos.add(produto);
-                });
+                await ProdutoService.addProduto(produto);
+                _carregarProdutos();
               }
             } catch (e) {
               print("Error: ${e.toString()}");
